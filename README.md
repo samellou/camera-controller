@@ -13,7 +13,7 @@ As I have few projects in my portfolio, be indulgent to me and don't hesitate to
 This script will switch on your default camera, and create a 3x3 grid with several inputs. When you have your face inside one of the input square, the input will be made on your keyboard.
 As I am currently into GameBoy games, I mapped it by default to a GameBoy Advance setup.
 
-It uses the OpenCV library with its facial recognition model HaarCascade to detect your face and its position in the said grid.
+It uses the [OpenCV](https://opencv.org/) library with its facial recognition model [HaarCascade](https://docs.opencv.org/3.4/db/d28/tutorial_cascade_classifier.html) to detect your face and its position in the said grid.
 Once you are done with it, you can press "q" to close the program.
 
 Every steps are detailed inside the script if you are curious.
@@ -22,7 +22,7 @@ Every steps are detailed inside the script if you are curious.
 
 #### Prerequisites
 
-Please install Python with pip on your machine if you have not already done so (I personally have version 3.11).
+Please install [Python](https://www.python.org/) with pip on your machine if you have not already done so (I personally have version 3.11).
 
 #### The steps
 
