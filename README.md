@@ -51,7 +51,7 @@ Comme j'ai peu de projets dans mon portfolio, soyez indulgents, mais n'hésitez 
 Ce script va allumer votre caméra par défaut, et créer une grille 3x3 avec plusieurs touches. Quand vous aurez votre visage reconnu dans l'une des cases de la grille, la touche associée va être virtuellement appuyé sur votre clavier.
 Comme je suis à fond sur des jeux de GameBoy Advance récemment, j'ai décidé de mapper les touches de manière à pouvoir jouer à la GameBoy avec ma tête.
 
-Cela utilise la librairie OpenCV avec son modèle de reconnaissance faciale HaarCascade pour détecter votre visage dans la grille.
+Cela utilise la librairie [OpenCV](https://opencv.org/) avec son modèle de reconnaissance faciale [HaarCascade](https://docs.opencv.org/3.4/db/d28/tutorial_cascade_classifier.html) pour détecter votre visage dans la grille.
 Quand vous aurez terminé de l'utiliser, appuyez sur "q" pour fermer le programme.
 
 Chaque étape est décrite dans le script (attention aux non-anglophones, les commentaires sont en anglais 😉).
@@ -61,7 +61,7 @@ Chaque étape est décrite dans le script (attention aux non-anglophones, les co
 
 #### Prérequis
 
-Veuillez installer Python avec pip sur votre machine si ce n'est pas déjà fait. (J'ai la version 3.11 personnellement)
+Veuillez installer [Python](https://www.python.org/) avec pip sur votre machine si ce n'est pas déjà fait. (J'ai la version 3.11 personnellement)
 
 #### Les étapes
 
