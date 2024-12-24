@@ -1,196 +1,133 @@
 # -----------------------------------------------------------
 # File : main.py
 # Author : samellou
-# Version : 1.0.0
+# Version : 1.1.0
 # Description : Whole script to create the camera controller
 # -----------------------------------------------------------
 
-# Import needed libs
-import cv2
 from pynput.keyboard import Controller, KeyCode
+from tkinter import *
+from PIL import Image, ImageTk
+import mediapipe as mp
+from utils import *
+import keyboard
 
 
-# Grid that defines all the possibles inputs
-possible_input = [
-    [["A", 103], ["up", 104], ["B", 105]],
-    [["left", 100], ["neutral", 101], ["right", 102]],
-    [["select", 97], ["down", 98], ["start", 99]],
-]
-
-
-# We define an object of class Controller to handle keyboard inputs
+# Capture init
 controller = Controller()
-
-
-def draw_transparent_grid(frame, alpha=0.5):
-    """
-    Returns the grid that defines input areas.
-
-    Parameters
-        - frame : An "MatLike" Object from OpenCV that represents a frame captured by your camera
-        - alpha : Grid transparency value (low alpha means more transparency)
-    Returns:
-        - a frame object from OpenCV
-
-    """
-
-    # Gets frame dimensions
-    height, width, _ = frame.shape
-
-    # Make a copy that will represent the grid overlay
-    overlay = frame.copy()
-
-    # We make a 3x3 grid so we get the dimensions of one square of the grid
-    third_width = width // 3
-    third_height = height // 3
-
-    # Drawing the lines on the overlay
-    for i in range(1, 3):
-        # Vertical lines
-        cv2.line(
-            overlay, (i * third_width, 0), (i * third_width, height), (0, 0, 255), 2
-        )
-        # Horizontal lines
-        cv2.line(
-            overlay, (0, i * third_height), (width, i * third_height), (0, 0, 255), 2
-        )
-
-    # For each square we add the input button
-    for row in range(3):
-        for col in range(3):
-            # Center of each squares
-            center_x = (col * third_width) + third_width // 2
-            center_y = (row * third_height) + third_height // 2
-            text = possible_input[row][col][
-                0
-            ]  # The added text is defined by the array "possible_input defined earlier"
-
-            # And we write the text in the middle.
-            cv2.putText(
-                overlay,
-                text,
-                (center_x - 20, center_y + 10),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.7,
-                (0, 0, 255),
-                2,
-            )
-
-    # Then we fuse the 2 overlays (classic frame and the overlay copy)
-    frame_with_grid = cv2.addWeighted(overlay, alpha, frame, 1 - alpha, 0)
-
-    return frame_with_grid
-
-
-def get_position_in_grid(face_x, face_y, width, height):
-    """
-    Returns the current position of a detected face in the grid.
-
-    Parameters:
-        - face_x : X coordinate of the face
-        - face_y : Y coordinate of the face
-        - width : width of the face
-        - height : height of the face
-    Returns :
-        - row : Row of the grid where the face is
-        - col : Column of the grid where the face is
-
-    """
-    third_width = width // 3
-    third_height = height // 3
-
-    col = face_x // third_width
-    row = face_y // third_height
-
-    return row, col
-
-
-# Loading the HaarCascade Computer Vision model for face recog
-face_cascade = cv2.CascadeClassifier(
-    cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
-)
-
-# Connecting to the default camera of your system.
+capture_enabled = False
 cap = cv2.VideoCapture(0)
 
+# Mediapipe Face Detection Model
+mp_face_detection = mp.solutions.face_detection
+mp_drawing = mp.solutions.drawing_utils
+face_detection = mp_face_detection.FaceDetection(min_detection_confidence=0.5)
 
-# If you can't open it : we send a little error message
-if not cap.isOpened():
-    print("Erreur : Impossible d'ouvrir la caméra")
-    exit()
+# Global variables
+frame_count = 0
+last_input = None
 
-frame_count = 0  # Frame counter
+# Function to toggle capture mode
+def toggle_capture():
+    global capture_enabled
+    capture_enabled = not capture_enabled
+
+# TKinter init
+root = Tk()
+root.title("Camera Controller")
+
+# Menu
+menu_bar = Menu(root)
+file_menu = Menu(menu_bar, tearoff=0)
+file_menu.add_command(label="Activate/Deactivate capture    P", command=toggle_capture)
+menu_bar.add_cascade(label="Menu", menu=file_menu)
+root.config(menu=menu_bar)
+
+# Video Label
+video_label = Label(root)
+video_label.pack()
+
+# Video Update function
+def update_video():
+    """
+    Handles the camera output in general
+    
+    """
 
 
-# Previous input made by the user (we set it to "space" by default)
-last_input = input = KeyCode.from_vk(8)
+    global frame_count, last_input
 
-
-# Like the Ouroboros, we are now stuck within an eternal loop...
-while True:
-    # We capture a frame
     ret, frame = cap.read()
-    frame = cv2.flip(frame, 1)
+    if not ret or not cap.isOpened():
+        print("Erreur : Impossible de capturer la vidéo.")
+        root.after(10, update_video)
+        return
+    
+    
 
-    # If we cannot capture it, we send a image to the console
-    if not ret:
-        print("Erreur lors de la capture de l'image")
-        break
+    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    frame = cv2.flip(frame, 1)  # Flip horizontal
+    frame_with_grid = draw_transparent_grid(frame)
 
-    # To make the face recog easier, let's shade the frame in gray
-    gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    # When the capture is enabled :
+    if capture_enabled:
+        # Let's use mediapipe
+        results = face_detection.process(frame)
+        
+        #For each detections if there is at least one :
+        if results.detections:
+            for detection in results.detections:
+                bboxC = detection.location_data.relative_bounding_box
+                ih, iw, _ = frame.shape
+                x, y, w, h = int(bboxC.xmin * iw), int(bboxC.ymin * ih), int(bboxC.width * iw), int(bboxC.height * ih)
 
-    # And now the model do its thing.
-    faces = face_cascade.detectMultiScale(
-        gray_frame, scaleFactor=1.1, minNeighbors=5, minSize=(50, 50)
-    )
+                # Draw a rectangle on the face
+                cv2.rectangle(frame_with_grid, (x, y), (x + w, y + h), (0, 0, 255), 2)
 
-    # We add the grid to the frame
-    frame_with_grid = draw_transparent_grid(frame, alpha=0.5)
+                # Get the face position in the grid
+                height, width, _ = frame.shape
+                row, col = get_position_in_grid(x + w // 2, y + h // 2, width, height)
 
-    # For each detected faces
-    for x, y, w, h in faces:
-        # We draw a rectangle around it
-        cv2.rectangle(frame_with_grid, (x, y), (x + w, y + h), (255, 0, 0), 2)
+                # Show where we are
+                cv2.putText(
+                    frame_with_grid,
+                    possible_input[row][col][0],
+                    (10, 30),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.7,
+                    (0, 0, 255),
+                    2,
+                )
 
-        # Then it gets the position of the detected face in the grid
-        height, width, _ = frame.shape
-        row, col = get_position_in_grid(x + w // 2, y + h // 2, width, height)
+                # Keyboard input
+                input = KeyCode.from_vk(possible_input[row][col][1])
+                if frame_count % 2 == 0 and last_input != input:
+                    if last_input:
+                        controller.release(last_input)
+                    last_input = input
+                    controller.press(input)
 
-        # Notifying the user about the current position at the top left of the screen might be a good idea
-        cv2.putText(
-            frame_with_grid,
-            possible_input[row][col][0],
-            (10, 30),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.7,
-            (0, 0, 255),
-            2,
-        )
-        input = KeyCode.from_vk(possible_input[row][col][1])
+        frame_count += 1
+    else:
+        frame_with_grid = frame  # Then the capture will be normal
 
-        # For each two frames
-        if frame_count % 2 == 0:
-            # If there is a modification of input
-            if last_input != input:
-                # the previous input is then released
-                if last_input:
-                    controller.release(last_input)
-                last_input = input
+    # Output
+    img = ImageTk.PhotoImage(Image.fromarray(frame_with_grid))
+    video_label.config(image=img)
+    video_label.image = img
 
-                # and the new input is pressed
-                controller.press(input)
+    #Shortcut for capture/activation
+    if keyboard.is_pressed("p"):
+        toggle_capture()
+    # Every 5 ms we update the video
+    root.after(5, update_video)
 
-    frame_count += 1
+# We call the update_video function to begin the capture
+update_video()
 
-    # Smile to the camera
-    cv2.imshow('Camera controller (press "q" to exit)', frame_with_grid)
+# TKinter main loop
+root.mainloop()
 
-    # And if you press 'q', say goodbye to the camera
-    key = cv2.waitKey(1) & 0xFF
-    if key == ord("q"):
-        break
-
-# And we release the used camera from its burden, and we close the window.
+# Free the camera and close windows
 cap.release()
 cv2.destroyAllWindows()
