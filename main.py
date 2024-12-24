@@ -119,8 +119,8 @@ def update_video():
     #Shortcut for capture/activation
     if keyboard.is_pressed("p"):
         toggle_capture()
-    # Every 5 ms we update the video
-    root.after(5, update_video)
+    # Every 1 ms we update the video
+    root.after(1, update_video)
 
 # We call the update_video function to begin the capture
 update_video()
