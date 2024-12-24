@@ -13,7 +13,7 @@ As I have few projects in my portfolio, be indulgent to me and don't hesitate to
 This script will switch on your default camera, and create a 3x3 grid with several inputs. When you have your face inside one of the input square, the input will be made on your keyboard.
 As I am currently into GameBoy games, I mapped it by default to a GameBoy Advance setup.
 
-It uses the OpenCV library with its facial recognition model HaarCascade to detect your face and its position in the said grid.
+It uses the [OpenCV](https://opencv.org/) library with its facial recognition model [HaarCascade](https://docs.opencv.org/3.4/db/d28/tutorial_cascade_classifier.html) to detect your face and its position in the said grid.
 Once you are done with it, you can press "q" to close the program.
 
 Every steps are detailed inside the script if you are curious.
@@ -22,7 +22,7 @@ Every steps are detailed inside the script if you are curious.
 
 #### Prerequisites
 
-Please install Python with pip on your machine if you have not already done so (I personally have version 3.11).
+Please install [Python](https://www.python.org/) with pip on your machine if you have not already done so (I personally have version 3.11).
 
 #### The steps
 
@@ -51,7 +51,7 @@ Comme j'ai peu de projets dans mon portfolio, soyez indulgents, mais n'hésitez 
 Ce script va allumer votre caméra par défaut, et créer une grille 3x3 avec plusieurs touches. Quand vous aurez votre visage reconnu dans l'une des cases de la grille, la touche associée va être virtuellement appuyé sur votre clavier.
 Comme je suis à fond sur des jeux de GameBoy Advance récemment, j'ai décidé de mapper les touches de manière à pouvoir jouer à la GameBoy avec ma tête.
 
-Cela utilise la librairie OpenCV avec son modèle de reconnaissance faciale HaarCascade pour détecter votre visage dans la grille.
+Cela utilise la librairie [OpenCV](https://opencv.org/) avec son modèle de reconnaissance faciale [HaarCascade](https://docs.opencv.org/3.4/db/d28/tutorial_cascade_classifier.html) pour détecter votre visage dans la grille.
 Quand vous aurez terminé de l'utiliser, appuyez sur "q" pour fermer le programme.
 
 Chaque étape est décrite dans le script (attention aux non-anglophones, les commentaires sont en anglais 😉).
@@ -61,7 +61,7 @@ Chaque étape est décrite dans le script (attention aux non-anglophones, les co
 
 #### Prérequis
 
-Veuillez installer Python avec pip sur votre machine si ce n'est pas déjà fait. (J'ai la version 3.11 personnellement)
+Veuillez installer [Python](https://www.python.org/) avec pip sur votre machine si ce n'est pas déjà fait. (J'ai la version 3.11 personnellement)
 
 #### Les étapes
 
