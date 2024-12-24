@@ -79,3 +79,4 @@ Veuillez installer [Python](https://www.python.org/) avec pip sur votre machine 
 
 ## How it looks like / Voici le rendu
 
+![image](https://github.com/user-attachments/assets/b3fa6303-8219-47c9-b81d-4c340876e345)
