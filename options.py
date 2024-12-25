@@ -1,23 +1,23 @@
 # -----------------------------------------------------------
 # File : options.py
 # Author : samellou
-# Version : 1.2.0
-# Description : Added Options
+# Version : 1.3.0
+# Description : Added Hand-tracking
 # -----------------------------------------------------------
 
 from tkinter import *
 from tkinter import ttk
 from utils import *
-import numpy as np
 import ctypes
-from ctypes import wintypes
 from functools import partial
 
+#Global variables
 button_grid = []
 current_grid = possible_input
 
 capture_keycode = 217
 capture_keysym = "None"
+
 
 
 #Save the current assignation to the button
@@ -86,7 +86,6 @@ def get_key_value(vk_code):
     return char
 
 
-
 def show_assignation_menu(window,button,row,col):
     """Handles the creation of the assignation menu when you want to map a key"""
     w = Toplevel(window)
@@ -115,8 +114,6 @@ def show_assignation_menu(window,button,row,col):
     button.configure(command= lambda window=w,label=l3 : enable_key_capture(window,label))
     donebutton = Button(w,text="Done",width = 5,height=2,command=lambda b1=button,b2=button_grid[row][col],e=entry,r=row,c=col : save_assignation(b1,b2,e,r,c))
     donebutton.pack(pady=15)
-
-
 
 
 def draw_grid(canvas, rows, cols, width, height):
@@ -156,12 +153,13 @@ def update_grid(canvas, row_var, col_var, width, height):
 
 
 
-
 def show_mapping_menu(root):
     """Handles the whole Options window"""
     t= Toplevel(root)
     t.wm_title("Options")
     t.resizable(width=False,height=False)
+
+    tk_recog_mode = StringVar(value = recog_mode)
 
     row_dim = IntVar(value = len(possible_input))
     col_dim = IntVar(value = len(possible_input[0]))
@@ -197,6 +195,15 @@ def show_mapping_menu(root):
     l = Label(t,text="Click on a button of this grid to change its mapping.")
     l.place(x=canvas.winfo_x() + 30,y=canvas.winfo_y()+10)
 
+    recog_options = ["Face recog.","Hand recog."]
+
+    dropdown_label = Label(t,text = "Select a recognition mode :")
+    dropdown_label.place(x=scaled_padx//2 + 45, y = 30)
+
+    dropdown = OptionMenu(t,tk_recog_mode, *recog_options)
+    dropdown.place(x=scaled_padx//2 + 50, y = 50)
+
+    
 
 
     draw_grid(canvas, len(possible_input), len(possible_input[0]), canvas_width, canvas_height)
@@ -208,26 +215,32 @@ def show_mapping_menu(root):
     row_scale.configure(command=lambda val : update_grid(canvas,row_var=val,col_var=col_dim.get(),width=canvas_width,height=canvas_height))
     col_scale.configure(command=lambda val : update_grid(canvas,row_var=row_dim.get(),col_var=val,width=canvas_width,height=canvas_height))
 
-    apply_button = Button(t,text="Apply changes",command=apply_changes)
+    apply_button = Button(t,text="Apply changes",command=lambda tks=tk_recog_mode : apply_changes(tks))
     apply_button.place(x=scaled_padx - 100,y=scaled_pady-50)
-    load_button = Button(t,text = "Load config",command=lambda c=canvas,row=row_dim.get(),col=col_dim.get(),w=canvas_width,h=canvas_height,rd=row_dim,cd=col_dim : load_config(c,row,col,w,h,rd,cd))
+    load_button = Button(t,text = "Load config",command=lambda c=canvas,w=canvas_width,h=canvas_height,rd=row_dim,cd=col_dim,tks= tk_recog_mode : load_config(c,w,h,rd,cd,tks))
     load_button.place(x=scaled_padx - 200,y=scaled_pady-50)
 
-
-def load_config(canvas,row,col,width,height,rd,cd):
+def load_config(canvas,width,height,rd,cd,tks):
     """Handles config load when you press 'Load config'"""
-    global current_grid
-    current_grid = json.load(open("config.json","r"))
-    draw_grid(canvas,row,col,width,height)
+    global current_grid, recog_mode
+    current_grid,recog_mode = json.load(open("config.json","r"))
+
+    tks.set(recog_mode)
     rd.set(len(current_grid))
     cd.set(len(current_grid[0]))
+    draw_grid(canvas,rd.get(),cd.get(),width,height)
+    
 
 
-
-
-def apply_changes():
+def apply_changes(tks):
     """Handles config save when you click 'Apply change'"""
-    #change_possible_input(current_grid)
-    with open("config.json","w") as config_file:
-        json.dump(current_grid,config_file,indent=4)
+    change_possible_input(current_grid)
+    with open("config.json","w") as config:
+        config.write("[\n\t")
+        json.dump(current_grid,config,indent=4)
+        config.write(","+f'"{tks.get()}"]')
+        config.close()
+        
+    global recog_mode
+    recog_mode = tks.get()
         

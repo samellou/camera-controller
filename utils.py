@@ -1,14 +1,20 @@
 # -----------------------------------------------------------
 # File : main.py
 # Author : samellou
-# Version : 1.2.0
-# Description : Added Options
+# Version : 1.3.0
+# Description : Added Hand tracking
 # -----------------------------------------------------------
 
 
 import cv2
 import os
 import json
+import numpy as np
+
+
+def euclid_dist(point_a,point_b):
+    """Compute the euclidian distance between two points represented as tuples"""
+    return np.sqrt((point_a[0] - point_b[0])**2 + (point_a[1] - point_b[1])**2)
 
 
 
@@ -22,10 +28,13 @@ default_input = [
 #If the config file doesn't exist, we create it
 if not os.path.exists("config.json"):
     config = open("config.json","w")
+    config.write("[\n\t")
     json.dump(default_input,config,indent=4)
+    config.write(","+'"Face recog."]')
     config.close()
 
-possible_input = json.load(open("config.json","r"))
+#We load the config a first time
+possible_input,recog_mode = json.load(open("config.json","r"))
 
 #When called, will change the possible inputs to remap
 def change_possible_input(array):
@@ -43,8 +52,8 @@ def draw_transparent_grid(frame, alpha=0.5):
         - A frame object from OpenCV with the grid overlay
     """
 
-    # Load possible input from the configuration file
-    possible_input = json.load(open("config.json", "r"))
+    # Reload possible input from the configuration file
+    possible_input = json.load(open("config.json", "r"))[0]
 
     row_len = len(possible_input)
     col_len = len(possible_input[0])
@@ -131,4 +140,16 @@ def get_position_in_grid(face_x, face_y, width, height, row_len, col_len):
     col = min(col, col_len - 1)
     row = min(row, row_len - 1)
 
-    return row, col
+    return round(row), round(col)
+
+def get_landmark_position(landmark,width,height,row_len,col_len):
+    """Returns the position of a hand landmark."""
+    x = landmark.x
+    y = landmark.y
+
+    rel_x = x*width
+    rel_y = y*height
+
+    return get_position_in_grid(rel_x,rel_y,width=width,height=height,row_len=row_len,col_len=col_len)
+
+
