@@ -1,106 +1,134 @@
 # -----------------------------------------------------------
 # File : main.py
 # Author : samellou
-# Version : 1.1.0
-# Description : Camera controller utility functions
+# Version : 1.2.0
+# Description : Added Options
 # -----------------------------------------------------------
 
 
 import cv2
+import os
+import json
 
-possible_input = [
-    [["A", 103], ["up", 104], ["B", 105]],
-    [["left", 100], ["neutral", 101], ["right", 102]],
-    [["select", 97], ["down", 98], ["start", 99]],
+
+
+#Default config
+default_input = [
+    [["A", 217], ["up", 217], ["B", 217]],
+    [["left", 217], ["neutral", 217], ["right", 217]],
+    [["select", 217], ["down", 217], ["start", 217]],
 ]
 
-def modify_possible_input(row,col,input_name,input_value):
-    """
-    To be continued...
-    """
-    modified_inputs = possible_input
-    modified_inputs[row][col] = [input_name,input_value]
-    return modified_inputs
+#If the config file doesn't exist, we create it
+if not os.path.exists("config.json"):
+    config = open("config.json","w")
+    json.dump(default_input,config,indent=4)
+    config.close()
 
+possible_input = json.load(open("config.json","r"))
 
+#When called, will change the possible inputs to remap
+def change_possible_input(array):
+    global possible_input
+    possible_input = array
 
 def draw_transparent_grid(frame, alpha=0.5):
     """
-    Returns the grid that defines input areas.
+    Draws a transparent grid with text overlay on the given frame.
 
-    Parameters
-        - frame : An "MatLike" Object from OpenCV that represents a frame captured by your camera
+    Parameters:
+        - frame : A frame object from OpenCV representing the captured frame
         - alpha : Grid transparency value (low alpha means more transparency)
     Returns:
-        - a frame object from OpenCV
-
+        - A frame object from OpenCV with the grid overlay
     """
 
-    # Gets frame dimensions
+    # Load possible input from the configuration file
+    possible_input = json.load(open("config.json", "r"))
+
+    row_len = len(possible_input)
+    col_len = len(possible_input[0])
+
+    # Get frame dimensions
     height, width, _ = frame.shape
 
-    # Make a copy that will represent the grid overlay
+    # Create a copy for the grid overlay
     overlay = frame.copy()
 
-    # We make a 3x3 grid so we get the dimensions of one square of the grid
-    third_width = width // 3
-    third_height = height // 3
+    # Calculate cell dimensions
+    cell_width = width // col_len
+    cell_height = height // row_len
 
-    # Drawing the lines on the overlay
-    for i in range(1, 3):
+    # Draw grid lines on the overlay
+    for i in range(1, col_len):
         # Vertical lines
-        cv2.line(
-            overlay, (i * third_width, 0), (i * third_width, height), (255, 0, 0), 2
-        )
+        x = i * cell_width
+        cv2.line(overlay, (x, 0), (x, height), (255, 0, 0), 2)
+
+    for j in range(1, row_len):
         # Horizontal lines
-        cv2.line(
-            overlay, (0, i * third_height), (width, i * third_height), (255, 0, 0), 2
-        )
+        y = j * cell_height
+        cv2.line(overlay, (0, y), (width, y), (255, 0, 0), 2)
 
-    # For each square we add the input button
-    for row in range(3):
-        for col in range(3):
-            # Center of each squares
-            center_x = (col * third_width) + third_width // 2
-            center_y = (row * third_height) + third_height // 2
-            text = possible_input[row][col][
-                0
-            ]  # The added text is defined by the array "possible_input defined earlier"
+    # Add text to each cell
+    for row in range(row_len):
+        for col in range(col_len):
+            # Calculate the center of the current cell
+            center_x = col * cell_width + cell_width // 2
+            center_y = row * cell_height + cell_height // 2
 
-            # And we write the text in the middle.
+            # Get the text for this cell
+            text = possible_input[row][col][0]
+
+            # Calculate text size and baseline
+            text_size, _ = cv2.getTextSize(
+                text, cv2.FONT_HERSHEY_SIMPLEX, 0.7, 2
+            )
+
+            # Center the text inside the cell
+            text_x = center_x - text_size[0] // 2
+            text_y = center_y + text_size[1] // 2
+
+            # Write the text
             cv2.putText(
                 overlay,
                 text,
-                (center_x - 20, center_y + 10),
+                (text_x, text_y),
                 cv2.FONT_HERSHEY_SIMPLEX,
                 0.7,
                 (255, 0, 0),
                 2,
             )
 
-    # Then we fuse the 2 overlays (classic frame and the overlay copy)
+    # Merge the overlay with the original frame
     frame_with_grid = cv2.addWeighted(overlay, alpha, frame, 1 - alpha, 0)
 
     return frame_with_grid
 
-def get_position_in_grid(face_x, face_y, width, height):
+def get_position_in_grid(face_x, face_y, width, height, row_len, col_len):
     """
     Returns the current position of a detected face in the grid.
 
     Parameters:
         - face_x : X coordinate of the face
         - face_y : Y coordinate of the face
-        - width : width of the face
-        - height : height of the face
+        - width : width of the grid
+        - height : height of the grid
+        - row_len : Number of rows in the grid
+        - col_len : Number of columns in the grid
     Returns :
         - row : Row of the grid where the face is
         - col : Column of the grid where the face is
-
     """
-    third_width = width // 3
-    third_height = height // 3
+    # Cell dimensions
+    cell_width = width // col_len
+    cell_height = height // row_len
 
-    col = face_x // third_width
-    row = face_y // third_height
+    # Computing cell coordinates
+    col = face_x // cell_width
+    row = face_y // cell_height
+
+    col = min(col, col_len - 1)
+    row = min(row, row_len - 1)
 
     return row, col

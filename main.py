@@ -1,16 +1,16 @@
 # -----------------------------------------------------------
 # File : main.py
 # Author : samellou
-# Version : 1.1.0
-# Description : Whole script to create the camera controller
+# Version : 1.2.0
+# Description : Added Options
 # -----------------------------------------------------------
 
 from pynput.keyboard import Controller, KeyCode
-from tkinter import *
-from PIL import Image, ImageTk
 import mediapipe as mp
-from utils import *
 import keyboard
+from options import *
+from PIL import Image, ImageTk
+
 
 
 # Capture init
@@ -32,14 +32,21 @@ def toggle_capture():
     global capture_enabled
     capture_enabled = not capture_enabled
 
+def show_map():
+    global root
+    show_mapping_menu(root)
+
+
 # TKinter init
 root = Tk()
 root.title("Camera Controller")
+root.resizable(width=False, height=False)
 
 # Menu
 menu_bar = Menu(root)
 file_menu = Menu(menu_bar, tearoff=0)
 file_menu.add_command(label="Activate/Deactivate capture    P", command=toggle_capture)
+file_menu.add_command(label="Options", command=show_map)
 menu_bar.add_cascade(label="Menu", menu=file_menu)
 root.config(menu=menu_bar)
 
@@ -53,8 +60,6 @@ def update_video():
     Handles the camera output in general
     
     """
-
-
     global frame_count, last_input
 
     ret, frame = cap.read()
@@ -71,6 +76,10 @@ def update_video():
 
     # When the capture is enabled :
     if capture_enabled:
+        possible_input = json.load(open("config.json","r"))
+        row_len = len(possible_input)
+        col_len = len(possible_input[0])
+        
         # Let's use mediapipe
         results = face_detection.process(frame)
         
@@ -86,8 +95,8 @@ def update_video():
 
                 # Get the face position in the grid
                 height, width, _ = frame.shape
-                row, col = get_position_in_grid(x + w // 2, y + h // 2, width, height)
-
+                row, col = get_position_in_grid(x + w // 2, y + h // 2, width, height,row_len = row_len, col_len = col_len)        
+                print(row,col)
                 # Show where we are
                 cv2.putText(
                     frame_with_grid,
@@ -100,12 +109,14 @@ def update_video():
                 )
 
                 # Keyboard input
+                
                 input = KeyCode.from_vk(possible_input[row][col][1])
-                if frame_count % 2 == 0 and last_input != input:
+                if frame_count % 2 == 0 and input and last_input != input:
                     if last_input:
                         controller.release(last_input)
                     last_input = input
                     controller.press(input)
+            
 
         frame_count += 1
     else:
