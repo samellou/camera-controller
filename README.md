@@ -10,7 +10,7 @@ As I have few projects in my portfolio, be indulgent to me and don't hesitate to
 
 ### How does it work
 
-This script will switch on your default camera, and create a 3x3 grid with several inputs. When you have your face inside one of the input square, the input will be made on your keyboard.
+This script will switch on your default camera, and create a grid with several inputs. When you have your face inside one of the input square, the input will be made on your keyboard.
 As I am currently into GameBoy games, I mapped it by default to a GameBoy Advance setup.
 
 It uses the Google [MediaPipe](https://ai.google.dev/edge/mediapipe/solutions/guide) library with its facial recognition model to detect your face and its position in the said grid.
@@ -21,7 +21,7 @@ Every steps are detailed inside the script if you are curious.
 
 #### Prerequisites
 
-Please install [Python](https://www.python.org/) with pip on your machine if you have not already done so (I personally have version 3.11).
+Please install [Python](https://www.python.org/) with pip on your machine if you have not already done so (I personally have version 3.11). If you have the direct link I may have given you, you just need to download the executable.
 
 #### The steps
 
@@ -47,8 +47,8 @@ Comme j'ai peu de projets dans mon portfolio, soyez indulgents, mais n'hésitez 
 
 ### Comment ça fonctionne
 
-Ce script va allumer votre caméra par défaut, et créer une grille 3x3 avec plusieurs touches. Quand vous aurez votre visage reconnu dans l'une des cases de la grille, la touche associée va être virtuellement appuyé sur votre clavier.
-Comme je suis à fond sur des jeux de GameBoy Advance récemment, j'ai décidé de mapper les touches de manière à pouvoir jouer à la GameBoy avec ma tête.
+Ce script va allumer votre caméra par défaut, et créer une grille avec plusieurs touches. Quand vous aurez votre visage reconnu dans l'une des cases de la grille, la touche associée va être virtuellement appuyé sur votre clavier.
+Comme je suis à fond sur des jeux de GameBoy Advance récemment, j'ai décidé de mapper les touches de manière à pouvoir jouer à la GameBoy avec ma tête ou mes mains.
 
 Cela utilise la librairie [MediaPipe](https://ai.google.dev/edge/mediapipe/solutions/guide) de Google avec son modèle de reconnaissance faciale pour détecter votre visage dans la grille.
 
@@ -59,7 +59,7 @@ Chaque étape est décrite dans le script (attention aux non-anglophones, les co
 
 #### Prérequis
 
-Veuillez installer [Python](https://www.python.org/) avec pip sur votre machine si ce n'est pas déjà fait. (J'ai la version 3.11 personnellement)
+Veuillez installer [Python](https://www.python.org/) avec pip sur votre machine si ce n'est pas déjà fait. (J'ai la version 3.11 personnellement). Si vous avez juste le lien que je vous ai peut-être donné, veuillez juste télécharger l'exécutable.
 
 #### Les étapes
 
