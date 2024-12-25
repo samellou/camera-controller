@@ -94,7 +94,7 @@ def show_assignation_menu(window,button,row,col):
     l.pack(pady=10)
     l2 = Label(w,text=f"Button name")
     l2.pack(pady=5)
-    w.geometry("150x250")
+    w.geometry("150x300")
 
     entry = Entry(w, width=8) 
     entry.pack(pady=2) 
@@ -168,7 +168,7 @@ def show_mapping_menu(root):
     screen_height = root.winfo_screenheight()
 
     scaled_padx = (screen_width // 2) - (500 // 2)
-    scaled_pady = (screen_height // 2) - (300 // 2)
+    scaled_pady = (screen_height // 2) - (300 // 2) + 50
 
     
     canvas_width = scaled_padx//3
@@ -185,9 +185,9 @@ def show_mapping_menu(root):
     row_l.place(x=row_scale.winfo_x() + 50,y= (3 * scaled_pady)//4 + 18)
 
     col_scale = Scale(t,variable=col_dim,orient="horizontal",from_=1,to=8)
-    col_scale.place(x=scaled_padx//6,y=(7 * scaled_pady)//8)
+    col_scale.place(x=scaled_padx//6,y=(7 * scaled_pady)//8 - 20)
     col_l = Label(t,text="Columns : ")
-    col_l.place(x=col_scale.winfo_x() + 45,y= (7 * scaled_pady)//8 + 18)
+    col_l.place(x=col_scale.winfo_x() + 45,y= (7 * scaled_pady)//8 -3)
 
     canvas = Canvas(t, width=canvas_width, height=canvas_height, bg="white")
     canvas.place(x=scaled_padx//14,y=scaled_pady//8)
