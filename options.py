@@ -172,6 +172,7 @@ def show_mapping_menu(root):
     scaled_padx = (screen_width // 2) - (500 // 2)
     scaled_pady = (screen_height // 2) - (300 // 2)
 
+    
     canvas_width = scaled_padx//3
     canvas_height = scaled_pady//2
 
@@ -182,12 +183,22 @@ def show_mapping_menu(root):
 
     row_scale = Scale(t,variable=row_dim,orient="horizontal",from_=1,to=8)
     row_scale.place(x=scaled_padx//6,y=(3 * scaled_pady)//4)
+    row_l = Label(t,text="Rows : ")
+    row_l.place(x=row_scale.winfo_x() + 50,y= (3 * scaled_pady)//4 + 18)
 
     col_scale = Scale(t,variable=col_dim,orient="horizontal",from_=1,to=8)
     col_scale.place(x=scaled_padx//6,y=(7 * scaled_pady)//8)
+    col_l = Label(t,text="Columns : ")
+    col_l.place(x=col_scale.winfo_x() + 45,y= (7 * scaled_pady)//8 + 18)
 
     canvas = Canvas(t, width=canvas_width, height=canvas_height, bg="white")
     canvas.place(x=scaled_padx//14,y=scaled_pady//8)
+
+    l = Label(t,text="Click on a button of this grid to change its mapping.")
+    l.place(x=canvas.winfo_x() + 30,y=canvas.winfo_y()+10)
+
+
+
     draw_grid(canvas, len(possible_input), len(possible_input[0]), canvas_width, canvas_height)
     for i in range(len(button_grid)):
         for j in range(len(button_grid[0])):
