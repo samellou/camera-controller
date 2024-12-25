@@ -14,7 +14,6 @@ This script will switch on your default camera, and create a 3x3 grid with sever
 As I am currently into GameBoy games, I mapped it by default to a GameBoy Advance setup.
 
 It uses the Google [MediaPipe](https://ai.google.dev/edge/mediapipe/solutions/guide) library with its facial recognition model to detect your face and its position in the said grid.
-Once you are done with it, you can press "q" to close the program.
 
 Every steps are detailed inside the script if you are curious.
 
@@ -52,7 +51,6 @@ Ce script va allumer votre caméra par défaut, et créer une grille 3x3 avec pl
 Comme je suis à fond sur des jeux de GameBoy Advance récemment, j'ai décidé de mapper les touches de manière à pouvoir jouer à la GameBoy avec ma tête.
 
 Cela utilise la librairie [MediaPipe](https://ai.google.dev/edge/mediapipe/solutions/guide) de Google avec son modèle de reconnaissance faciale pour détecter votre visage dans la grille.
-Quand vous aurez terminé de l'utiliser, appuyez sur "q" pour fermer le programme.
 
 Chaque étape est décrite dans le script (attention aux non-anglophones, les commentaires sont en anglais 😉).
 
@@ -81,5 +79,4 @@ Veuillez installer [Python](https://www.python.org/) avec pip sur votre machine 
 
 ## How it looks like / Voici le rendu
 
-
-![image](https://github.com/user-attachments/assets/ac2f9727-e448-42c8-bc21-e2bb65360a29)
+![image](https://github.com/user-attachments/assets/b3fa6303-8219-47c9-b81d-4c340876e345)
