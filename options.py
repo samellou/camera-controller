@@ -1,8 +1,8 @@
 # -----------------------------------------------------------
 # File : options.py
 # Author : samellou
-# Version : 1.4.0
-# Description : Added frame limit
+# Version : 1.5.0
+# Description : Corrected some UI issues
 # -----------------------------------------------------------
 
 from tkinter import *
@@ -107,8 +107,9 @@ def show_assignation_menu(window,button,row,col):
 
     l2 = Label(w,text=f"Input keyboard button")
     l2.pack(pady=5)
-    button = Button(w,width=10,height=3)
+    button = Button(w,width=10,height=3,text="cu")
     button.pack(pady=2)
+    button.configure(text=f"{current_grid[row][col][0]}\n({get_key_value(current_grid[row][col][1])})")
     l3 = Label(w)
     l3.pack(pady=2)
     button.configure(command= lambda window=w,label=l3 : enable_key_capture(window,label))

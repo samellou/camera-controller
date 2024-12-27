@@ -1,10 +1,9 @@
 # -----------------------------------------------------------
-# File : main.py
+# File : utils.py
 # Author : samellou
-# Version : 1.3.0
-# Description : Added Hand tracking
+# Version : 1.5.0
+# Description : Corrected some UI issues
 # -----------------------------------------------------------
-
 
 import cv2
 import os

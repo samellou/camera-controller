@@ -1,8 +1,8 @@
 # -----------------------------------------------------------
 # File : main.py
 # Author : samellou
-# Version : 1.3.0
-# Description : Added handtrackking
+# Version : 1.5.0
+# Description : Corrected some UI issues
 # -----------------------------------------------------------
 
 from pynput.keyboard import Controller, KeyCode
