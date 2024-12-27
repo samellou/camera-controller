@@ -131,7 +131,7 @@ def update_video():
                 # Keyboard input
                 
                 input = KeyCode.from_vk(possible_input[row][col][1])
-                if frame_count % 2 == 0 and input and last_input != input:
+                if frame_count % 10 == 0 and input and last_input != input:
                     if last_input:
                         controller.release(last_input)
                     last_input = input
@@ -148,6 +148,7 @@ def update_video():
 
         # Drawing results if hands exist
         if results.multi_hand_landmarks:
+            input_text_list = []
             for hand_landmarks in results.multi_hand_landmarks:
                 # Drawing hand points connection
                 mp_drawing.draw_landmarks(
@@ -166,39 +167,48 @@ def update_video():
                 point9,point12 = hand_landmarks.landmark[9],hand_landmarks.landmark[12]
             
 
-            point9_tuple = (point9.x,point9.y)
-            point12_tuple = (point12.x,point12.y)
-            row,col = get_landmark_position(point9,width=width,height=height,row_len= row_len,col_len= col_len)
+                point9_tuple = (point9.x,point9.y)
+                point12_tuple = (point12.x,point12.y)
+                row,col = get_landmark_position(point9,width=width,height=height,row_len= row_len,col_len= col_len)
+                
+                #Computing the distance between the two points
+                dist_9_12 = euclid_dist(point9_tuple,point12_tuple)
             
-            #Computing the distance between the two points
-            dist_9_12 = euclid_dist(point9_tuple,point12_tuple)
-        
 
-        # Show where we are if the distance is greater than a fixed threshold
-            if dist_9_12 >= hand_threshold:
+            # Show where we are if the distance is greater than a fixed threshold
+                if dist_9_12 >= hand_threshold:
+                    input_text_list.append(possible_input[row][col][0])
+                    
+
+                # Keyboard input if the hand is not closed
+                
+                input = KeyCode.from_vk(possible_input[row][col][1])
+                if frame_count % 10 == 0 and input and dist_9_12 >= hand_threshold:
+                    if last_input:
+                        controller.release(last_input)
+                    last_input = input
+                    controller.press(input)
+            if input_text_list:
+                input_indic = ""
+                for input_text in input_text_list:
+                    input_indic += input_text+"+"
+                input_indic = input_indic[:-1]
                 cv2.putText(
-                    frame_with_grid,
-                    possible_input[row][col][0],
-                    (10, 30),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    0.7,
-                    (0, 0, 255),
-                    2,
-                )
+                        frame_with_grid,
+                        input_indic,
+                        (10, 30),
+                        cv2.FONT_HERSHEY_SIMPLEX,
+                        0.7,
+                        (0, 0, 255),
+                        2,
+                    )
 
-            # Keyboard input if the hand is not closed
-            
-            input = KeyCode.from_vk(possible_input[row][col][1])
-            if frame_count % 2 == 0 and input and dist_9_12 >= hand_threshold:
-                if last_input:
-                    controller.release(last_input)
-                last_input = input
-                controller.press(input)
         else:
             if last_input:
                 controller.release(last_input)
             last_input = None
-
+        frame_count += 1
+    
 
     else:
         frame_with_grid = frame  # Then the capture will be normal

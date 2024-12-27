@@ -203,7 +203,7 @@ def show_mapping_menu(root):
     dropdown = OptionMenu(t,tk_recog_mode, *recog_options)
     dropdown.place(x=scaled_padx//2 + 50, y = 50)
 
-    
+
 
 
     draw_grid(canvas, len(possible_input), len(possible_input[0]), canvas_width, canvas_height)
@@ -229,7 +229,6 @@ def load_config(canvas,width,height,rd,cd,tks):
     rd.set(len(current_grid))
     cd.set(len(current_grid[0]))
     draw_grid(canvas,rd.get(),cd.get(),width,height)
-    
 
 
 def apply_changes(tks):
