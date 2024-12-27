@@ -84,7 +84,7 @@ def update_video():
         return
     
     
-    possible_input,recog_mode = json.load(open("config.json","r"))
+    possible_input,recog_mode,frame_limit = json.load(open("config.json","r"))
 
     row_len = len(possible_input)
     col_len = len(possible_input[0])
@@ -131,7 +131,7 @@ def update_video():
                 # Keyboard input
                 
                 input = KeyCode.from_vk(possible_input[row][col][1])
-                if frame_count % 10 == 0 and input and last_input != input:
+                if frame_count % frame_limit == 0 and input and last_input != input:
                     if last_input:
                         controller.release(last_input)
                     last_input = input
@@ -140,6 +140,7 @@ def update_video():
 
         frame_count += 1
     elif capture_enabled and recog_mode == "Hand recog.":
+
         #RGB Conversion
         frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
@@ -183,7 +184,7 @@ def update_video():
                 # Keyboard input if the hand is not closed
                 
                 input = KeyCode.from_vk(possible_input[row][col][1])
-                if frame_count % 10 == 0 and input and dist_9_12 >= hand_threshold:
+                if frame_count % frame_limit == 0 and input and dist_9_12 >= hand_threshold:
                     if last_input:
                         controller.release(last_input)
                     last_input = input

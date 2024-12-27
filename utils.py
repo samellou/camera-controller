@@ -30,11 +30,11 @@ if not os.path.exists("config.json"):
     config = open("config.json","w")
     config.write("[\n\t")
     json.dump(default_input,config,indent=4)
-    config.write(","+'"Face recog."]')
+    config.write(","+'"Face recog.",10]')
     config.close()
 
 #We load the config a first time
-possible_input,recog_mode = json.load(open("config.json","r"))
+possible_input,recog_mode,frame_limit = json.load(open("config.json","r"))
 
 #When called, will change the possible inputs to remap
 def change_possible_input(array):

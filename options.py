@@ -1,8 +1,8 @@
 # -----------------------------------------------------------
 # File : options.py
 # Author : samellou
-# Version : 1.3.0
-# Description : Added Hand-tracking
+# Version : 1.4.0
+# Description : Added frame limit
 # -----------------------------------------------------------
 
 from tkinter import *
@@ -10,6 +10,7 @@ from tkinter import ttk
 from utils import *
 import ctypes
 from functools import partial
+from ctypes import wintypes
 
 #Global variables
 button_grid = []
@@ -44,7 +45,6 @@ user32 = ctypes.WinDLL('user32', use_last_error=True)
 
 def get_virtual_key_code(window,label,event):
     """Method called to get the vk from an input, with escape as None"""
-    vk_code = user32.MapVirtualKeyW(event.keycode, 0)
     label.config(text=f"Button pressed : {event.keysym}")
 
     global capture_keycode
@@ -76,14 +76,13 @@ def get_key_value(vk_code):
     We get the key value of a key input
     """
  
-    result = user32.MapVirtualKeyW(vk_code, 0)
+  # buffer for the char
+    buffer = ctypes.create_unicode_buffer(2)
     
-    if result == 0:
-        return None  # If it fails
-
-    # Get unicode
-    char = chr(result) if result < 0x10000 else None
-    return char
+    if user32.ToUnicode(vk_code, 0, ctypes.pointer((wintypes.BYTE * 256)()), buffer, len(buffer), 0) > 0:
+        return buffer.value  # get unicode character
+    else:
+        return None 
 
 
 def show_assignation_menu(window,button,row,col):
@@ -96,7 +95,8 @@ def show_assignation_menu(window,button,row,col):
     l2.pack(pady=5)
     w.geometry("150x300")
 
-    entry = Entry(w, width=8) 
+    entry = Entry(w, width=8)
+    entry.insert(0, button.cget("text").split("\n")[0])  
     entry.pack(pady=2) 
 
     global capture_keycode
@@ -135,7 +135,7 @@ def draw_grid(canvas, rows, cols, width, height):
             y2 = (i + 1) * cell_height
 
             # Create a button in each cells
-            button = Button(canvas, width=10, height=3,text="None\n(None)")
+            button = Button(canvas, width=10, height=3,text=f"{current_grid[i][j][0]}\n({get_key_value(current_grid[i][j][1])})")
             button.place(x=x1, y=y1, width=cell_width, height=cell_height)
             button.configure(command = lambda button=button,i=i,j=j : show_assignation_menu(canvas,button,i,j))
             button_range.append(button)
@@ -160,6 +160,8 @@ def show_mapping_menu(root):
     t.resizable(width=False,height=False)
 
     tk_recog_mode = StringVar(value = recog_mode)
+    tk_frame_limit = IntVar(value= frame_limit)
+
 
     row_dim = IntVar(value = len(possible_input))
     col_dim = IntVar(value = len(possible_input[0]))
@@ -204,6 +206,15 @@ def show_mapping_menu(root):
     dropdown.place(x=scaled_padx//2 + 50, y = 50)
 
 
+    frame_limit_label = Label(t,text = "Select input frame frequency :")
+    frame_limit_label.place(x=scaled_padx//2 + 45, y = 90)
+
+    frame_limit_scale = Scale(t,variable=tk_frame_limit,orient="horizontal",from_=1,to=100,length=scaled_padx//3)
+    frame_limit_scale.place(x=scaled_padx//2 + 50, y = 120)
+
+
+
+
 
 
     draw_grid(canvas, len(possible_input), len(possible_input[0]), canvas_width, canvas_height)
@@ -215,29 +226,30 @@ def show_mapping_menu(root):
     row_scale.configure(command=lambda val : update_grid(canvas,row_var=val,col_var=col_dim.get(),width=canvas_width,height=canvas_height))
     col_scale.configure(command=lambda val : update_grid(canvas,row_var=row_dim.get(),col_var=val,width=canvas_width,height=canvas_height))
 
-    apply_button = Button(t,text="Apply changes",command=lambda tks=tk_recog_mode : apply_changes(tks))
+    apply_button = Button(t,text="Apply changes",command=lambda tks=tk_recog_mode,tkf=tk_frame_limit : apply_changes(tks,tkf))
     apply_button.place(x=scaled_padx - 100,y=scaled_pady-50)
-    load_button = Button(t,text = "Load config",command=lambda c=canvas,w=canvas_width,h=canvas_height,rd=row_dim,cd=col_dim,tks= tk_recog_mode : load_config(c,w,h,rd,cd,tks))
+    load_button = Button(t,text = "Load config",command=lambda c=canvas,w=canvas_width,h=canvas_height,rd=row_dim,cd=col_dim,tks= tk_recog_mode,tkf = tk_frame_limit : load_config(c,w,h,rd,cd,tks,tkf))
     load_button.place(x=scaled_padx - 200,y=scaled_pady-50)
 
-def load_config(canvas,width,height,rd,cd,tks):
+def load_config(canvas,width,height,rd,cd,tks,tkf):
     """Handles config load when you press 'Load config'"""
     global current_grid, recog_mode
-    current_grid,recog_mode = json.load(open("config.json","r"))
+    current_grid,recog_mode,frame_limit = json.load(open("config.json","r"))
 
     tks.set(recog_mode)
     rd.set(len(current_grid))
     cd.set(len(current_grid[0]))
+    tkf.set(frame_limit)
     draw_grid(canvas,rd.get(),cd.get(),width,height)
 
 
-def apply_changes(tks):
+def apply_changes(tks,tkf):
     """Handles config save when you click 'Apply change'"""
     change_possible_input(current_grid)
     with open("config.json","w") as config:
         config.write("[\n\t")
         json.dump(current_grid,config,indent=4)
-        config.write(","+f'"{tks.get()}"]')
+        config.write(","+f'"{tks.get()}",{tkf.get()}]')
         config.close()
         
     global recog_mode
