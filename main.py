@@ -1,8 +1,8 @@
 # -----------------------------------------------------------
 # File : main.py
 # Author : samellou
-# Version : 1.5.0
-# Description : Corrected some UI issues
+# Version : 1.6.0
+# Description : Added color options
 # -----------------------------------------------------------
 
 from pynput.keyboard import Controller, KeyCode
@@ -21,6 +21,9 @@ cap = cv2.VideoCapture(0)
 mp_face_detection = mp.solutions.face_detection
 mp_drawing = mp.solutions.drawing_utils
 face_detection = mp_face_detection.FaceDetection(min_detection_confidence=0.5)
+
+
+
 
 
 # Mediapipe Hand detection Model
@@ -84,7 +87,7 @@ def update_video():
         return
     
     
-    possible_input,recog_mode,frame_limit = json.load(open("config.json","r"))
+    possible_input,recog_mode,frame_limit,color_dict = json.load(open("config.json","r"))
 
     row_len = len(possible_input)
     col_len = len(possible_input[0])
@@ -111,7 +114,7 @@ def update_video():
                 x, y, w, h = int(bboxC.xmin * iw), int(bboxC.ymin * ih), int(bboxC.width * iw), int(bboxC.height * ih)
 
                 # Draw a rectangle on the face
-                cv2.rectangle(frame_with_grid, (x, y), (x + w, y + h), (0, 0, 255), 2)
+                cv2.rectangle(frame_with_grid, (x, y), (x + w, y + h), hex_to_rgb(color_dict["face_square_color"][1:]), 2)
 
                 # Get the face position in the grid
                 
@@ -122,9 +125,9 @@ def update_video():
                     frame_with_grid,
                     possible_input[row][col][0],
                     (10, 30),
-                    cv2.FONT_HERSHEY_SIMPLEX,
+                    cv2.FONT_HERSHEY_TRIPLEX,
                     0.7,
-                    (0, 0, 255),
+                    hex_to_rgb(color_dict["input_color"][1:]),
                     2,
                 )
 
@@ -156,13 +159,13 @@ def update_video():
                     frame_with_grid, 
                     hand_landmarks, 
                     mp_hands.HAND_CONNECTIONS,
-                    mp_drawing.DrawingSpec(color=(0, 255, 0), thickness=2, circle_radius=4),
-                    mp_drawing.DrawingSpec(color=(255, 0, 0), thickness=2)
+                    mp_drawing.DrawingSpec(color=hex_to_rgb(color_dict["hand_dot_color"][1:]), thickness=2, circle_radius=4),
+                    mp_drawing.DrawingSpec(color=hex_to_rgb(color_dict["hand_ridge_color"][1:]), thickness=2)
                 )
                 # get point coordinates
                 for id, lm in enumerate(hand_landmarks.landmark):
                     cx, cy = int(lm.x * width), int(lm.y * height)
-                    cv2.putText(frame_with_grid, str(id), (cx, cy), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 1)
+                    cv2.putText(frame_with_grid, str(id), (cx, cy), cv2.FONT_HERSHEY_TRIPLEX, 0.5, hex_to_rgb(color_dict["hand_text_color"][1:]), 1)
 
                 #Get the point n°9 and 12 to compute if the hand is closed
                 point9,point12 = hand_landmarks.landmark[9],hand_landmarks.landmark[12]
@@ -198,9 +201,9 @@ def update_video():
                         frame_with_grid,
                         input_indic,
                         (10, 30),
-                        cv2.FONT_HERSHEY_SIMPLEX,
+                        cv2.FONT_HERSHEY_TRIPLEX,
                         0.7,
-                        (0, 0, 255),
+                        hex_to_rgb(color_dict["input_color"][1:]),
                         2,
                     )
 

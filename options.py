@@ -1,12 +1,12 @@
 # -----------------------------------------------------------
 # File : options.py
 # Author : samellou
-# Version : 1.5.0
-# Description : Corrected some UI issues
+# Version : 1.6.0
+# Description : Added color options
 # -----------------------------------------------------------
 
 from tkinter import *
-from tkinter import ttk
+from tkinter import ttk,colorchooser
 from utils import *
 import ctypes
 from functools import partial
@@ -19,7 +19,13 @@ current_grid = possible_input
 capture_keycode = 217
 capture_keysym = "None"
 
-
+def open_color(event,color_frame,parent):
+    # Ouvrir la boîte de dialogue de couleur
+    color = colorchooser.askcolor(parent=parent,title="Choose a color")
+    
+    if color[1]: 
+        color_frame.config(bg=color[1])
+ 
 
 #Save the current assignation to the button
 def save_assignation(button1,button2,entry,row,col):
@@ -38,10 +44,8 @@ def reset_grid(row,col):
     return grid            
 
 
-
 # Init Ctypes to get all the VKs
 user32 = ctypes.WinDLL('user32', use_last_error=True)
-
 
 def get_virtual_key_code(window,label,event):
     """Method called to get the vk from an input, with escape as None"""
@@ -68,7 +72,6 @@ def enable_key_capture(window,label):
     label.config(text="Please press a button\n on your keyboard...")
     
     window.bind("<Key>", partial(get_virtual_key_code, window, label))  # Bind the listener
-
 
 
 def get_key_value(vk_code):
@@ -117,6 +120,138 @@ def show_assignation_menu(window,button,row,col):
     donebutton.pack(pady=15)
 
 
+def show_color_menu(window):
+    w = Toplevel(window)
+    w.wm_title("Color menu")
+    w.resizable(width=False,height=False)
+    wheight = 200
+    wwidth = 500
+    w.geometry(f"{wwidth}x{wheight}")
+
+
+    bold_font = ("Helvetica", 8, "bold")
+    
+    
+
+    general_label = Label(w,text="General",font=bold_font)
+    general_label.place(x = wwidth//6 - 20,y=5)
+
+    face_label = Label(w,text="Face",font=bold_font)
+    face_label.place(x = wwidth//2 - 20,y=5)
+
+    hand_label = Label(w,text="Hands",font=bold_font)
+    hand_label.place(x = 5*wwidth//6 - 20,y=5)
+
+
+    sep1 = ttk.Separator(w,orient="vertical")
+    sep1.place(x=wwidth//3,y=0,width = 20,height=wheight)
+
+    sep2 = ttk.Separator(w,orient="vertical")
+    sep2.place(x=2 * wwidth//3,y=0,width = 20,height=wheight)
+
+    #======================================================
+
+    grid_color_label = Label(w,text="Grid")
+
+    grid_color_height = wheight//8
+    padding_col = 20
+    grid_color_label.place(x=padding_col,y=grid_color_height)
+
+    global grid_color_frame
+    grid_color_frame = Frame(w,height=20,width=20,bg=color_dict["grid_color"],relief="ridge", borderwidth=3)
+
+    
+    grid_color_frame.place(x=padding_col + 100,y=grid_color_height)
+    grid_color_frame.bind("<Button-1>",lambda event,cf = grid_color_frame,p=w : open_color(event,cf,p))
+
+
+    #=====================================================
+
+    grid_color_text_label = Label(w,text="Grid text")
+    
+    grid_color_text_height = wheight//4
+    grid_color_text_label.place(x=padding_col,y=grid_color_text_height)
+
+    global grid_text_color_frame
+    grid_text_color_frame = Frame(w,height=20,width = 20,bg = color_dict["grid_text_color"],relief="ridge",borderwidth=3)
+
+    grid_text_color_frame.place(x=padding_col+100,y=grid_color_text_height)
+    grid_text_color_frame.bind("<Button-1>",lambda event,cf = grid_text_color_frame,p=w : open_color(event,cf,p))
+
+    #=====================================================
+
+    input_color_label = Label(w,text="Current input")
+    
+    input_color_height =  (3 * wheight)//8
+    input_color_label.place(x=padding_col,y=input_color_height)
+
+    global input_color_frame
+    input_color_frame = Frame(w,height=20,width = 20,bg = color_dict["input_color"],relief="ridge",borderwidth=3)
+
+    input_color_frame.place(x=padding_col+100,y=input_color_height)
+    input_color_frame.bind("<Button-1>",lambda event,cf = input_color_frame,p=w : open_color(event,cf,p))
+
+    #=====================================================
+
+    face_square_label = Label(w,text="Face square")
+    face_square_height = wheight//8
+    face_square_label.place(x=padding_col + wwidth//3,y=face_square_height)
+
+    global face_square_frame
+    face_square_frame = Frame(w,height=20,width = 20,bg = color_dict["face_square_color"],relief="ridge",borderwidth=3)
+
+    face_square_frame.place(x=padding_col + wwidth//3 + 100,y=face_square_height)
+    face_square_frame.bind("<Button-1>",lambda event,cf = face_square_frame,p=w : open_color(event,cf,p))
+
+    #=====================================================
+
+    hand_dot_color_label =  Label(w,text="Hand dot")
+    hand_dot_height = wheight//8
+    hand_dot_color_label.place(x = padding_col + 2 * wwidth//3,y=hand_dot_height)
+
+    global hand_dot_frame
+    hand_dot_frame = Frame(w,height=20,width = 20,bg = color_dict["hand_dot_color"],relief="ridge",borderwidth=3)
+
+    hand_dot_frame.place(x=padding_col + 2* wwidth//3 + 100,y=hand_dot_height)
+    hand_dot_frame.bind("<Button-1>",lambda event,cf = hand_dot_frame,p=w : open_color(event,cf,p))
+
+
+    #=====================================================
+
+
+    hand_ridge_color_label =  Label(w,text="Hand ridge")
+    hand_ridge_height = wheight//4
+    hand_ridge_color_label.place(x = padding_col + 2 * wwidth//3,y=hand_ridge_height)
+
+    global hand_ridge_frame
+    hand_ridge_frame = Frame(w,height=20,width = 20,bg = color_dict["hand_ridge_color"],relief="ridge",borderwidth=3)
+
+    hand_ridge_frame.place(x=padding_col + 2* wwidth//3 + 100,y=hand_ridge_height)
+    hand_ridge_frame.bind("<Button-1>",lambda event,cf = hand_ridge_frame,p=w : open_color(event,cf,p))
+
+
+    #=====================================================
+
+    hand_text_color_label =  Label(w,text="Hand text")
+    hand_text_height = 3* wheight//8
+    hand_text_color_label.place(x = padding_col + 2 * wwidth//3,y=hand_text_height)
+
+    global hand_text_frame
+    hand_text_frame = Frame(w,height=20,width = 20,bg = color_dict["hand_text_color"],relief="ridge",borderwidth=3)
+
+    hand_text_frame.place(x=padding_col + 2* wwidth//3 + 100,y=hand_text_height)
+    hand_text_frame.bind("<Button-1>",lambda event,cf = hand_text_frame,p=w : open_color(event,cf,p))
+
+
+    #=====================================================
+
+
+    apply_button = Button(w,text="Apply colors",command=lambda cg = grid_color_frame,ctg = grid_text_color_frame,ci = input_color_frame,cfs = face_square_frame,chd=hand_dot_frame,chr=hand_ridge_frame,cht=hand_text_frame : apply_colors(cg,ctg,ci,cfs,chd,chr,cht))
+    apply_button_width = (4*wwidth)//5
+    apply_button_height = (7*wheight)//8
+    apply_button.place(x=apply_button_width,y=apply_button_height - 10)
+
+
 def draw_grid(canvas, rows, cols, width, height):
     """Draws a button grid on the canvas"""
     canvas.delete("all")  # Previous grid deletion
@@ -143,7 +278,6 @@ def draw_grid(canvas, rows, cols, width, height):
         button_grid.append(button_range)
 
 
-
 def update_grid(canvas, row_var, col_var, width, height):
     """Updates the grid depending on the sliders"""
     rows = int(row_var)
@@ -151,7 +285,6 @@ def update_grid(canvas, row_var, col_var, width, height):
     global current_grid
     current_grid = reset_grid(rows,cols)
     draw_grid(canvas, rows, cols, width, height)
-
 
 
 def show_mapping_menu(root):
@@ -213,7 +346,8 @@ def show_mapping_menu(root):
     frame_limit_scale = Scale(t,variable=tk_frame_limit,orient="horizontal",from_=1,to=100,length=scaled_padx//3)
     frame_limit_scale.place(x=scaled_padx//2 + 50, y = 120)
 
-
+    color_menu_button = Button(t,text = "Color options",command=lambda win=t : show_color_menu(win))
+    color_menu_button.place(x=scaled_padx//2 + 55,y=200)
 
 
 
@@ -234,8 +368,8 @@ def show_mapping_menu(root):
 
 def load_config(canvas,width,height,rd,cd,tks,tkf):
     """Handles config load when you press 'Load config'"""
-    global current_grid, recog_mode
-    current_grid,recog_mode,frame_limit = json.load(open("config.json","r"))
+    global current_grid, recog_mode,color_dict
+    current_grid,recog_mode,frame_limit,color_dict = json.load(open("config.json","r"))
 
     tks.set(recog_mode)
     rd.set(len(current_grid))
@@ -244,15 +378,39 @@ def load_config(canvas,width,height,rd,cd,tks,tkf):
     draw_grid(canvas,rd.get(),cd.get(),width,height)
 
 
+def apply_colors(gc,gtc,ic,fsc,hdc,hrc,htc):
+
+    color_dict["grid_color"] = gc.cget("bg")
+    color_dict["grid_text_color"] = gtc.cget("bg")
+    color_dict["input_color"] = ic.cget("bg")
+    color_dict["face_square_color"] = fsc.cget("bg")
+    color_dict["hand_dot_color"] = hdc.cget("bg")
+    color_dict["hand_ridge_color"] = hrc.cget("bg")
+    color_dict["hand_text_color"] = htc.cget("bg")
+
+    with open('config.json', 'r') as f:
+        data = json.load(f)
+    f.close()
+
+    data[3] = color_dict
+
+    with open('config.json', 'w') as f:
+        json.dump(data, f, indent=4)
+    f.close()
+
+
 def apply_changes(tks,tkf):
-    """Handles config save when you click 'Apply change'"""
-    change_possible_input(current_grid)
-    with open("config.json","w") as config:
-        config.write("[\n\t")
-        json.dump(current_grid,config,indent=4)
-        config.write(","+f'"{tks.get()}",{tkf.get()}]')
-        config.close()
-        
     global recog_mode
     recog_mode = tks.get()
+    """Handles config save when you click 'Apply change'"""
+    change_possible_input(current_grid)
+    with open("config.json","r") as config:
+        data = json.load(config)
+    config.close()
+    with open("config.json","w") as config:
+        data[0] = current_grid
+        data[1] = tks.get()
+        data[2] = tkf.get()
+        json.dump(data,config,indent=4)
+    config.close()
         

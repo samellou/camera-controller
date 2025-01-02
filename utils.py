@@ -1,8 +1,8 @@
 # -----------------------------------------------------------
 # File : utils.py
 # Author : samellou
-# Version : 1.5.0
-# Description : Corrected some UI issues
+# Version : 1.6.0
+# Description : Added color options
 # -----------------------------------------------------------
 
 import cv2
@@ -10,6 +10,18 @@ import os
 import json
 import numpy as np
 
+default_colors = {
+    "grid_color":"#ff0000",
+    "grid_text_color":"#ff0000",
+    "input_color":"#0000ff",
+    "face_square_color":"#0000ff",
+    "hand_dot_color":"#00ff00",
+    "hand_ridge_color":"#ff0000",
+    "hand_text_color":"#00ffff"
+    }
+
+def hex_to_rgb(hex):
+    return tuple(int(hex[i:i+2], 16) for i in (0, 2, 4))
 
 def euclid_dist(point_a,point_b):
     """Compute the euclidian distance between two points represented as tuples"""
@@ -29,11 +41,14 @@ if not os.path.exists("config.json"):
     config = open("config.json","w")
     config.write("[\n\t")
     json.dump(default_input,config,indent=4)
-    config.write(","+'"Face recog.",10]')
+    config.write(","+'"Face recog.",10,\n')
+    json.dump(default_colors,config,indent=4)
+    config.write('\n]')
     config.close()
 
+
 #We load the config a first time
-possible_input,recog_mode,frame_limit = json.load(open("config.json","r"))
+possible_input,recog_mode,frame_limit,color_dict = json.load(open("config.json","r"))
 
 #When called, will change the possible inputs to remap
 def change_possible_input(array):
@@ -71,12 +86,12 @@ def draw_transparent_grid(frame, alpha=0.5):
     for i in range(1, col_len):
         # Vertical lines
         x = i * cell_width
-        cv2.line(overlay, (x, 0), (x, height), (255, 0, 0), 2)
+        cv2.line(overlay, (x, 0), (x, height), hex_to_rgb(color_dict["grid_color"][1:]), 2)
 
     for j in range(1, row_len):
         # Horizontal lines
         y = j * cell_height
-        cv2.line(overlay, (0, y), (width, y), (255, 0, 0), 2)
+        cv2.line(overlay, (0, y), (width, y), hex_to_rgb(color_dict["grid_color"][1:]), 2)
 
     # Add text to each cell
     for row in range(row_len):
@@ -90,7 +105,7 @@ def draw_transparent_grid(frame, alpha=0.5):
 
             # Calculate text size and baseline
             text_size, _ = cv2.getTextSize(
-                text, cv2.FONT_HERSHEY_SIMPLEX, 0.7, 2
+                text, cv2.FONT_HERSHEY_TRIPLEX, 0.7, 2
             )
 
             # Center the text inside the cell
@@ -102,9 +117,9 @@ def draw_transparent_grid(frame, alpha=0.5):
                 overlay,
                 text,
                 (text_x, text_y),
-                cv2.FONT_HERSHEY_SIMPLEX,
+                cv2.FONT_HERSHEY_TRIPLEX,
                 0.7,
-                (255, 0, 0),
+                hex_to_rgb(color_dict["grid_text_color"][1:]),
                 2,
             )
 
